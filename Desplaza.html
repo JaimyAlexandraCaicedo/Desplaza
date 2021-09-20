@@ -1,0 +1,148 @@
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+	<body>
+        <script src="three.js"></script>
+		<script src="three.min.js"></script>
+		<script src="OBJLoader.js"></script>
+		<script src="Detector.js"></script>
+        <script src="TrackballControls.js"></script>
+		
+
+		<script>
+
+			//var container, stats;
+            var object;
+			var camera, scene, renderer;
+			var xSpeed = 0.5;
+    		var ySpeed = 0.5;
+	
+
+			init();
+			animate();
+	
+
+			function init() {
+
+		    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+			camera.position.z =100;
+     
+
+            controls = new THREE.TrackballControls( camera );
+			controls.rotateSpeed = 5.0;
+			controls.zoomSpeed = 5;
+			controls.panSpeed = 2;
+			controls.noZoom = false;
+			controls.noPan = false;
+			controls.staticMoving = true;
+			controls.dynamicDampingFactor = 0.3;
+
+				// escena
+
+				scene = new THREE.Scene();
+
+				// luz ambiente
+				
+				// var ambient = new THREE.AmbientLight( 0x101030 );
+				var ambient = new THREE.AmbientLight( 0xffffff );
+				scene.add( ambient );
+
+				// Carga textura
+
+				var texture = new THREE.Texture();
+
+				var loader = new THREE.ImageLoader();
+				loader.addEventListener( 'load', function ( event ) {
+
+					texture.image = event.content;
+					texture.needsUpdate = true;
+					texture.magFilter = THREE.NearestFilter;
+					texture.minFilter = THREE.NearestMipMapLinearFilter;
+
+				} );
+				loader.load( 'Shelby.png' );
+
+				// Carga modelo
+
+				var loader = new THREE.OBJLoader();
+				loader.addEventListener( 'load', function ( event ) {
+
+				    object = event.content;
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							child.material.map = texture;
+						}
+
+					} );
+
+					object.scale = new THREE.Vector3(5,5,5);
+                    object.rotation.x=11;
+					scene.add( object );
+
+				});
+				loader.load( 'Shelby.obj' );
+
+				// Renderiza con webGL
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0x000000,1.0);
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				document.addEventListener('keycontrols',setupKeyControls, false);
+			
+		
+
+			setupKeyControls();
+    }
+				
+	
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+                //console.log(object.rotation.x);
+               
+			}
+
+			function render() {
+
+				controls.update();
+				camera.lookAt( scene.position );
+				renderer.render( scene, camera );
+
+			}
+
+            function setupKeyLogger() {
+        		document.onkeydown = function (e) {
+            	console.log(e);
+        	    }
+            }
+		
+				
+			function setupKeyControls(event) {
+        		document.onkeydown = function (e) {
+            		switch (e.keyCode) {
+                		case 37:
+                   			object.position.x -= ySpeed;  //tecla izquierda -
+                    		break;
+                		case 38:
+							object.position.y += ySpeed; // tecla subir
+                    		break;
+                		case 39:
+							object.position.x += xSpeed; // tecla derecha +
+                    		break;
+                		case 40:
+							object.position.y -= xSpeed; // tecla de bajar
+                    		break;
+            		}
+        		};
+    		}
+
+		</script>
+		
+</body>
+</html>
+
